@@ -18,9 +18,11 @@ protocol DashboardPresenterInputsProtocol: AnyObject {
     var viewDidLoadTrigger: PublishRelay<Void> { get }
     var viewWillAppearTrigger: PublishRelay<Void> { get }
     var viewWillDisappearTrigger: PublishRelay<Void> { get }
+    var moduleSelected: PublishRelay<DashboardViewModel> { get }
 }
 
 protocol DashboardPresenterOutputsProtocol: AnyObject {
+  var types: Driver<[DashboardViewModel]> { get }
 }
 
 protocol DashboardPresenterProtocol: DashboardPresenterInputsProtocol, DashboardPresenterOutputsProtocol {

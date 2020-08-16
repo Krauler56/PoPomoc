@@ -7,3 +7,68 @@
 //
 
 import Foundation
+import UIKit
+
+extension UICollectionView {
+    func register<T: UICollectionViewCell>(_ cellClass: T.Type) {
+        register(cellClass, forCellWithReuseIdentifier: cellClass.reuseIdentifier)
+    }
+}
+
+extension UICollectionViewCell: ReusableView {}
+
+extension UICollectionView {
+    func dequeueReusableCell<T: UICollectionViewCell>(for indexPath: IndexPath) -> T {
+        guard let cell = dequeueReusableCell(withReuseIdentifier: T.reuseIdentifier, for: indexPath) as? T else {
+            fatalError()
+        }
+        return cell
+    }
+}
+protocol ReusableView {
+    static var reuseIdentifier: String { get }
+}
+
+extension ReusableView {
+    static var reuseIdentifier: String {
+        return String(describing: self)
+    }
+}
+
+
+extension UIColor {
+  
+  static func hexStringToUIColor (hex:String) -> UIColor {
+      var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+
+      if (cString.hasPrefix("#")) {
+          cString.remove(at: cString.startIndex)
+      }
+
+      if ((cString.count) != 6) {
+          return UIColor.gray
+      }
+
+      var rgbValue:UInt64 = 0
+      Scanner(string: cString).scanHexInt64(&rgbValue)
+
+      return UIColor(
+          red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
+          green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
+          blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
+          alpha: CGFloat(1.0)
+      )
+  }
+}
+
+class Colors {
+  static var mainColorBeige: UIColor { return UIColor.hexStringToUIColor(hex: "ECE6CE")}
+  static var secondaryColorTurquoise: UIColor { return UIColor.hexStringToUIColor(hex: "3A3E59")}
+  static var specialOrange: UIColor { return UIColor.hexStringToUIColor(hex: "F9AC68")}
+  static var specialRed: UIColor { return UIColor.hexStringToUIColor(hex: "ED6B5B")}
+}
+
+
+class BaseViewController: UIViewController {
+  var isNavigationBarHidden: Bool = false
+}

@@ -6,6 +6,16 @@
 //
 
 import Foundation
+import UIKit
 
 struct DashboardViewModel {
+    let type: DashboardModuleType
+    let title: String
+    let image: UIImage
+}
+
+enum DashboardModuleType {
+    case trackHelp
+    case assistance
+    case trackRent
 }

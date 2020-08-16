@@ -1,0 +1,26 @@
+name: PoPomoc # The name of the App
+options: # Some general settings for the project
+  createIntermediateGroups: true # If the folders are nested, also nest the groups in Xcode
+  indentWidth: 2 # indent by 2 spaces
+  tabWidth: 2 # a tab is 2 spaces
+  bundleIdPrefix: "de.number42"
+targets: # The List of our targets
+  PoPomoc:
+    type: application
+    platform: iOS
+    deploymentTarget: "13.0"
+    setttings: 
+      base: 
+        INFOPLIST_FILE: "PoPomoc/Resources/Info.plist"
+    sources:
+      #Sources
+      - path: PoPomoc
+      
+    preBuildScripts: 
+      - script: | 
+          "$PODS_ROOT/R.swift/rswift" generate "$SRCROOT/PoPomoc/R.generated.swift"
+        name: R.Swift
+        inputFiles: 
+        - $(TEMP_DIR)/rswift-lastrun
+        outputFiles:
+        - $(SRCROOT)/PoPomoc/R.generated.swift
