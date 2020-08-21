@@ -12,6 +12,7 @@ class PlaceTableViewCell: UITableViewCell {
     
     var label: UILabel = {
         let label = UILabel()
+        label.textColor = Colors.secondaryColorTurquoise
         return label
     }()
     
@@ -27,6 +28,7 @@ class PlaceTableViewCell: UITableViewCell {
     }
     
     func setupView() {
+        backgroundColor = Colors.mainColorBeige
         addSubview(label)
     }
     

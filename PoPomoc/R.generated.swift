@@ -105,10 +105,14 @@ struct R: Rswift.Validatable {
   }
   #endif
 
-  /// This `R.image` struct is generated, and contains static references to 4 images.
+  /// This `R.image` struct is generated, and contains static references to 6 images.
   struct image {
     /// Image `car-repair`.
     static let carRepair = Rswift.ImageResource(bundle: R.hostingBundle, name: "car-repair")
+    /// Image `marked-place`.
+    static let markedPlace = Rswift.ImageResource(bundle: R.hostingBundle, name: "marked-place")
+    /// Image `place`.
+    static let place = Rswift.ImageResource(bundle: R.hostingBundle, name: "place")
     /// Image `professions-and-jobs`.
     static let professionsAndJobs = Rswift.ImageResource(bundle: R.hostingBundle, name: "professions-and-jobs")
     /// Image `tow-truck`.
@@ -120,6 +124,20 @@ struct R: Rswift.Validatable {
     /// `UIImage(named: "car-repair", bundle: ..., traitCollection: ...)`
     static func carRepair(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
       return UIKit.UIImage(resource: R.image.carRepair, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "marked-place", bundle: ..., traitCollection: ...)`
+    static func markedPlace(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.markedPlace, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "place", bundle: ..., traitCollection: ...)`
+    static func place(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.place, compatibleWith: traitCollection)
     }
     #endif
 

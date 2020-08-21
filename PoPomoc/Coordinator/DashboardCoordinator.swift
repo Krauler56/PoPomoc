@@ -29,7 +29,7 @@ class DashboardCoordinator: NavigationCoordinator<DashboardRoute> {
           return .show(test)
         case .map:
           let test = resolver.resolve(MapViewController.self)!
-          return .push(test)
+          return .show(test)
         }
     }
 }

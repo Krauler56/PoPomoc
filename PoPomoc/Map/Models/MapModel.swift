@@ -6,6 +6,14 @@
 //
 
 import Foundation
+import MapKit
 
-struct MapModel {
+struct SelectedDestinationModel {
+    var polylines: [MKPolyline]
+    var region: MKCoordinateRegion
+}
+
+struct UserLocationModel {
+  var selectedMapItem: MKMapItem
+  var actualCoordinates: CLLocationCoordinate2D
 }
