@@ -14,7 +14,7 @@ import CoreLocation
 import RxMKMapView
 import AnimatedField
 
-final class MapViewController: BaseViewController {
+final class MapViewController: BaseViewController, UIGestureRecognizerDelegate {
     
     // MARK: - Attributes
     var presenter: MapPresenterProtocol!
@@ -40,6 +40,26 @@ final class MapViewController: BaseViewController {
     }()
     
     private let choosePlacesView = ChoosePlaceView()
+    
+    private let carPropositionView = CarPropositionView()
+    
+    enum CardState {
+        case expanded
+        case collapsed
+    }
+    
+    var visualEffectView:UIVisualEffectView!
+    
+    let cardHeight:CGFloat = 600
+    let cardHandleAreaHeight:CGFloat = 300
+    
+    var cardVisible = false
+    var nextState:CardState {
+        return cardVisible ? .collapsed : .expanded
+    }
+    
+    var runningAnimations = [UIViewPropertyAnimator]()
+    var animationProgressWhenInterrupted:CGFloat = 0
 }
 
 // MARK: - View Lifecycle
@@ -79,6 +99,10 @@ private extension MapViewController {
         containerView.addSubview(mapView)
         containerView.addSubview(tableView)
         containerView.addSubview(choosePlacesView)
+        self.addChild(carPropositionView)
+        self.view.addSubview(carPropositionView.view)
+        carPropositionView.view.isHidden = true
+        setupCard()
     }
     
     func addConstraints() {
@@ -105,8 +129,6 @@ private extension MapViewController {
     func setupRx() {
         setupInputs()
         setupOutputs()
-        
-        
     }
     func setupInputs() {
         choosePlacesView.destinationPlacemarkRxText
@@ -115,7 +137,6 @@ private extension MapViewController {
             .map { query -> MKLocalSearch in
                 let request = MKLocalSearch.Request()
                 request.naturalLanguageQuery = query
-                //request.region = self.region
                 return MKLocalSearch(request: request)
               }
               .flatMapLatest{ [unowned self] search -> Observable<[MKMapItem]> in
@@ -128,14 +149,21 @@ private extension MapViewController {
         
         tableView.rx
             .modelSelected(MKMapItem.self)
+            .do(onNext: { [unowned self] _ in
+                self.tableView.isHidden = true
+                self.choosePlacesView.isHidden = true
+                self.carPropositionView.view.isHidden = false
+                self.visualEffectView.isHidden = false
+                self.view.endEditing(true)
+                })
             .bind(to: presenter.inputs.destinationPlaceSelected)
             .disposed(by: disposeBag)
+        
+        tableView.rx.didScroll.subscribe(onNext: { [unowned self] _ in self.view.endEditing(true) }).disposed(by: disposeBag)
     }
     func setupOutputs() {
         presenter.outputs.drawPolylineDriver
             .drive(onNext: { [unowned self] polylines in
-                
-                //self.mapView.setRegion(destinationModel.region, animated: true)
                 self.mapView.addOverlays(polylines)
             }).disposed(by: disposeBag)
         
@@ -150,6 +178,11 @@ private extension MapViewController {
         presenter.outputs.userLocationAddressDriver.drive(onNext: { [unowned self] address in
             self.choosePlacesView.setupUserLocationText(address: address)
         }).disposed(by: disposeBag)
+        
+        presenter.outputs.companyListDriver.drive(carPropositionView.tableView.rx.items(cellIdentifier: CarPropositionCell.reuseIdentifier, cellType: CarPropositionCell.self)) { index, model, cell in
+            cell.label.text = model.title
+            cell.companyLogo.image = model.image
+        }.disposed(by: disposeBag)
     }
     
     func authorizeMapView() {
@@ -182,7 +215,127 @@ private extension MapViewController {
     
 }
 
+extension MapViewController {
+    func setupCard() {
+        visualEffectView = UIVisualEffectView()
+        visualEffectView.frame = self.view.frame
+        visualEffectView.isHidden = true
+        self.containerView.addSubview(visualEffectView)
+        
+//        cardViewController = CardViewController(nibName:"CardViewController", bundle:nil)
+        
+        
+        carPropositionView.view.frame = CGRect(x: 0, y: self.view.frame.height - cardHandleAreaHeight, width: self.view.bounds.width, height: cardHeight)
+        
+        carPropositionView.view.clipsToBounds = true
+        
+        //let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleCardTap(recognzier:)))
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(self.handleCardPan(recognizer:)))
+        
+       // carPropositionView.handleArea.addGestureRecognizer(tapGestureRecognizer)
+        carPropositionView.handleArea.addGestureRecognizer(panGestureRecognizer)
+        
+        
+    }
 
+    @objc
+    func handleCardTap(recognzier:UITapGestureRecognizer) {
+        switch recognzier.state {
+        case .ended:
+            animateTransitionIfNeeded(state: nextState, duration: 0.9)
+        default:
+            break
+        }
+    }
+    
+    @objc
+    func handleCardPan (recognizer:UIPanGestureRecognizer) {
+        
+        switch recognizer.state {
+        case .began:
+            startInteractiveTransition(state: nextState, duration: 0.9)
+        case .changed:
+            let translation = recognizer.translation(in: self.carPropositionView.handleArea)
+            var fractionComplete = translation.y / cardHeight
+            fractionComplete = cardVisible ? fractionComplete : -fractionComplete
+            updateInteractiveTransition(fractionCompleted: fractionComplete)
+        case .ended:
+            continueInteractiveTransition()
+        default:
+            break
+        }
+        
+    }
+    
+    func animateTransitionIfNeeded (state:CardState, duration:TimeInterval) {
+        if runningAnimations.isEmpty {
+            let frameAnimator = UIViewPropertyAnimator(duration: duration, dampingRatio: 1) {
+                switch state {
+                case .expanded:
+                    self.carPropositionView.view.frame.origin.y = self.view.frame.height - self.cardHeight
+                case .collapsed:
+                    self.carPropositionView.view.frame.origin.y = self.view.frame.height - self.cardHandleAreaHeight
+                }
+            }
+            
+            frameAnimator.addCompletion { _ in
+                self.cardVisible = !self.cardVisible
+                self.runningAnimations.removeAll()
+            }
+            
+            frameAnimator.startAnimation()
+            runningAnimations.append(frameAnimator)
+            
+            
+            let cornerRadiusAnimator = UIViewPropertyAnimator(duration: duration, curve: .linear) {
+                switch state {
+                case .expanded:
+                    self.carPropositionView.view.layer.cornerRadius = 12
+                case .collapsed:
+                    self.carPropositionView.view.layer.cornerRadius = 0
+                }
+            }
+            
+            cornerRadiusAnimator.startAnimation()
+            runningAnimations.append(cornerRadiusAnimator)
+            
+            let blurAnimator = UIViewPropertyAnimator(duration: duration, dampingRatio: 1) {
+                switch state {
+                case .expanded:
+                    self.visualEffectView.effect = UIBlurEffect(style: .dark)
+                case .collapsed:
+                    self.visualEffectView.effect = nil
+                }
+            }
+            
+            blurAnimator.startAnimation()
+            runningAnimations.append(blurAnimator)
+            
+        }
+    }
+    
+    func startInteractiveTransition(state:CardState, duration:TimeInterval) {
+        if runningAnimations.isEmpty {
+            animateTransitionIfNeeded(state: state, duration: duration)
+        }
+        for animator in runningAnimations {
+            animator.pauseAnimation()
+            animationProgressWhenInterrupted = animator.fractionComplete
+        }
+    }
+    
+    func updateInteractiveTransition(fractionCompleted:CGFloat) {
+        for animator in runningAnimations {
+            animator.fractionComplete = fractionCompleted + animationProgressWhenInterrupted
+        }
+    }
+    
+    func continueInteractiveTransition (){
+        for animator in runningAnimations {
+            animator.continueAnimation(withTimingParameters: nil, durationFactor: 0)
+        }
+    }
+}
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(overlay: overlay)

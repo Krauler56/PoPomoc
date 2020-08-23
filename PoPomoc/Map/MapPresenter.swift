@@ -34,6 +34,10 @@ final class MapPresenter: NSObject, MapPresenterProtocol {
     var mapAuthorizedDriver: Driver<Void> {
         return mapAuthorized.asDriver(onErrorJustReturn: ())
     }
+    
+    var companyListDriver: Driver<[Company]> {
+        return companyListRelay.asDriver(onErrorJustReturn: [])
+    }
     // MARK: - Attributes
 
     private let interactor: MapInteractorProtocol
@@ -47,6 +51,7 @@ final class MapPresenter: NSObject, MapPresenterProtocol {
     
     private let setRegionRelay = PublishRelay<MKCoordinateRegion>()
     private let drawPolylineRelay = PublishRelay<[MKPolyline]>()
+    private let companyListRelay = PublishRelay<[Company]>()
     private let mapAuthorized = PublishRelay<Void>()
     private let userLocationAddress = PublishRelay<String>()
     private let disposeBag = DisposeBag()
@@ -78,18 +83,20 @@ private extension MapPresenter {
             let directions = MKDirections(request: request)
             directions.calculate { [unowned self] response, error in
                 guard let routes = response?.routes else { return }
-                let destinationCoordinate = response?.destination.placemark.coordinate
-                let startCoordinate = model.placemark.coordinate
-                let centerCoordinate = CLLocationCoordinate2D(latitude: (destinationCoordinate!.latitude + startCoordinate.latitude)/2,
-                                                              longitude: (destinationCoordinate!.longitude + startCoordinate.longitude)/2)
+                let rect = response!.routes[0].polyline.boundingMapRect
                 
-                let span = MKCoordinateSpan(latitudeDelta: 3, longitudeDelta: 3)
-                let routeRegion = MKCoordinateRegion(center: centerCoordinate, span: span)
+                let routeRegion = MKCoordinateRegion(rect)
                 let overlays = routes.map { $0.polyline }
                 self.setRegionRelay.accept(routeRegion)
                 self.drawPolylineRelay.accept(overlays)
             }
         }).disposed(by: disposeBag)
+        
+        companyListRelay.accept([Company(title: "Company1", image: R.image.towingVehicle()!),
+                                Company(title: "Company2", image: R.image.towingVehicle()!),
+                                Company(title: "Company3", image: R.image.towingVehicle()!),
+                                Company(title: "Company4", image: R.image.towingVehicle()!),
+                                Company(title: "Company5", image: R.image.towingVehicle()!)])
     }
 }
 

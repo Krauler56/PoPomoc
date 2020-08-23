@@ -11,6 +11,7 @@ import AnimatedField
 import SnapKit
 import RxSwift
 import RxCocoa
+
 class ChoosePlaceView: UIView {
     
     var destinationPlacemarkRxText: ControlProperty<String?>

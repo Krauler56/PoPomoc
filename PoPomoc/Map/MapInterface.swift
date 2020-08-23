@@ -27,6 +27,7 @@ protocol MapPresenterOutputsProtocol: AnyObject {
   var setMapRegion: Driver<MKCoordinateRegion> { get }
   var mapAuthorizedDriver: Driver<Void> { get }
   var userLocationAddressDriver: Driver<String> { get }
+  var companyListDriver: Driver<[Company]> { get }
 }
 
 protocol MapPresenterProtocol: MapPresenterInputsProtocol, MapPresenterOutputsProtocol {
