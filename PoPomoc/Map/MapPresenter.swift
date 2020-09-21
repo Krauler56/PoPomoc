@@ -85,7 +85,9 @@ private extension MapPresenter {
                 guard let routes = response?.routes else { return }
                 let rect = response!.routes[0].polyline.boundingMapRect
                 
-                let routeRegion = MKCoordinateRegion(rect)
+                var routeRegion = MKCoordinateRegion(rect)
+                routeRegion.span.latitudeDelta *= 1.2
+                routeRegion.span.longitudeDelta *= 1.2
                 let overlays = routes.map { $0.polyline }
                 self.setRegionRelay.accept(routeRegion)
                 self.drawPolylineRelay.accept(overlays)

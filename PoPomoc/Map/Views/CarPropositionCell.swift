@@ -33,7 +33,7 @@ class CarPropositionCell: UITableViewCell {
     }
     
     func setupView() {
-        backgroundColor = Colors.mainColorBeige
+        backgroundColor = Colors.specialGray
         addSubview(companyLogo)
         addSubview(label)
     }

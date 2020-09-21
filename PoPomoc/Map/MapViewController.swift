@@ -18,7 +18,7 @@ final class MapViewController: BaseViewController, UIGestureRecognizerDelegate {
     
     // MARK: - Attributes
     var presenter: MapPresenterProtocol!
-
+    
     private let disposeBag = DisposeBag()
     
     // MARK: - Views
@@ -48,9 +48,9 @@ final class MapViewController: BaseViewController, UIGestureRecognizerDelegate {
         case collapsed
     }
     
-    var visualEffectView:UIVisualEffectView!
+    var visualEffectView: UIVisualEffectView!
     
-    let cardHeight:CGFloat = 600
+    let cardHeight: CGFloat = 600
     let cardHandleAreaHeight:CGFloat = 300
     
     var cardVisible = false
@@ -60,6 +60,9 @@ final class MapViewController: BaseViewController, UIGestureRecognizerDelegate {
     
     var runningAnimations = [UIViewPropertyAnimator]()
     var animationProgressWhenInterrupted:CGFloat = 0
+    
+    var mapDefaultConstraint: Constraint?
+    var mapCarPropositionContraint: Constraint?
 }
 
 // MARK: - View Lifecycle
@@ -73,13 +76,13 @@ extension MapViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         presenter.inputs.viewWillAppearTrigger.accept(())
-       // navigationController?.setNavigationBarHidden(false, animated: animated)
+        // navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         presenter.inputs.viewWillDisappearTrigger.accept(())
-       // navigationController?.setNavigationBarHidden(true, animated: animated)
+        // navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 }
 
@@ -113,17 +116,22 @@ private extension MapViewController {
             $0.top.equalTo(view.safeAreaInsets.top)
             $0.leading.trailing.equalToSuperview()
         }
-      
+        
         tableView.snp.makeConstraints {
-          $0.top.equalTo(choosePlacesView.snp.bottom)
+            $0.top.equalTo(choosePlacesView.snp.bottom)
             $0.height.equalTo(300)
             $0.trailing.leading.equalToSuperview()
         }
         
         mapView.snp.makeConstraints {
             $0.top.equalToSuperview()
-            $0.trailing.leading.bottom.equalToSuperview()
+            $0.trailing.leading.equalToSuperview()
+            mapDefaultConstraint = $0.bottom.equalToSuperview().constraint
+            mapCarPropositionContraint = $0.bottom.equalToSuperview().offset(-cardHandleAreaHeight).constraint
         }
+        
+        mapDefaultConstraint?.activate()
+        mapCarPropositionContraint?.deactivate()
     }
     
     func setupRx() {
@@ -138,14 +146,14 @@ private extension MapViewController {
                 let request = MKLocalSearch.Request()
                 request.naturalLanguageQuery = query
                 return MKLocalSearch(request: request)
-              }
-              .flatMapLatest{ [unowned self] search -> Observable<[MKMapItem]> in
-                  self.mapItems(for: search)
-              }
-              .filter { $0.count > 0}
-              .bind(to: tableView.rx.items(cellIdentifier: PlaceTableViewCell.reuseIdentifier, cellType: PlaceTableViewCell.self)) { index, model, cell in
+            }
+            .flatMapLatest{ [unowned self] search -> Observable<[MKMapItem]> in
+                self.mapItems(for: search)
+            }
+            .filter { $0.count > 0}
+            .bind(to: tableView.rx.items(cellIdentifier: PlaceTableViewCell.reuseIdentifier, cellType: PlaceTableViewCell.self)) { index, model, cell in
                 cell.label.text = model.placemark.compactAddress
-              }.disposed(by: disposeBag)
+            }.disposed(by: disposeBag)
         
         tableView.rx
             .modelSelected(MKMapItem.self)
@@ -154,8 +162,10 @@ private extension MapViewController {
                 self.choosePlacesView.isHidden = true
                 self.carPropositionView.view.isHidden = false
                 self.visualEffectView.isHidden = false
+                mapDefaultConstraint?.deactivate()
+                mapCarPropositionContraint?.activate()
                 self.view.endEditing(true)
-                })
+            })
             .bind(to: presenter.inputs.destinationPlaceSelected)
             .disposed(by: disposeBag)
         
@@ -169,7 +179,7 @@ private extension MapViewController {
         
         presenter.outputs.mapAuthorizedDriver.drive(onNext: { [unowned self] in
             self.authorizeMapView()
-            }).disposed(by: disposeBag)
+        }).disposed(by: disposeBag)
         
         presenter.outputs.setMapRegion.drive(onNext: { [unowned self] region in
             self.setMapRegion(region: region)
@@ -222,7 +232,7 @@ extension MapViewController {
         visualEffectView.isHidden = true
         self.containerView.addSubview(visualEffectView)
         
-//        cardViewController = CardViewController(nibName:"CardViewController", bundle:nil)
+        //        cardViewController = CardViewController(nibName:"CardViewController", bundle:nil)
         
         
         carPropositionView.view.frame = CGRect(x: 0, y: self.view.frame.height - cardHandleAreaHeight, width: self.view.bounds.width, height: cardHeight)
@@ -232,12 +242,12 @@ extension MapViewController {
         //let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleCardTap(recognzier:)))
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(self.handleCardPan(recognizer:)))
         
-       // carPropositionView.handleArea.addGestureRecognizer(tapGestureRecognizer)
+        // carPropositionView.handleArea.addGestureRecognizer(tapGestureRecognizer)
         carPropositionView.handleArea.addGestureRecognizer(panGestureRecognizer)
         
         
     }
-
+    
     @objc
     func handleCardTap(recognzier:UITapGestureRecognizer) {
         switch recognzier.state {
