@@ -13,6 +13,5 @@ target 'PoPomoc' do
   pod 'Swinject'
   pod 'R.swift'
   pod "RxMKMapView"
-  
-
+pod 'AnimatedField'
 end

@@ -15,7 +15,22 @@ class CarPropositionCell: UITableViewCell {
         imageView.image = R.image.towingVehicle()
         return imageView
     }()
-    var label: UILabel = {
+    
+    var labelContrainer = UIView()
+    
+    var nameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = Colors.secondaryColorTurquoise
+        return label
+    }()
+    
+    var timeLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = Colors.secondaryColorTurquoise
+        return label
+    }()
+    
+    var priceLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.secondaryColorTurquoise
         return label
@@ -26,6 +41,7 @@ class CarPropositionCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupView()
         setupConstraints()
+        setupSelectedBackgroundColor()
     }
     
     required init?(coder: NSCoder) {
@@ -35,25 +51,51 @@ class CarPropositionCell: UITableViewCell {
     func setupView() {
         backgroundColor = Colors.specialGray
         addSubview(companyLogo)
-        addSubview(label)
+        addSubview(labelContrainer)
+        addSubview(priceLabel)
+        labelContrainer.addSubview(nameLabel)
+        labelContrainer.addSubview(timeLabel)
     }
     
     func setupConstraints() {
         
         companyLogo.snp.makeConstraints {
-            $0.top.leading.bottom.equalToSuperview()
-            $0.width.equalTo(40)
+            $0.centerY.equalToSuperview()
+            $0.leading.equalToSuperview().offset(20)
+            $0.width.equalTo(64)
+            $0.height.equalTo(64)
         }
         
-        label.snp.makeConstraints {
-            $0.top.bottom.trailing.equalToSuperview()
+        labelContrainer.snp.makeConstraints {
+            $0.centerY.equalToSuperview().offset(-30)
             $0.leading.equalTo(companyLogo.snp.trailing).offset(30)
-            
         }
+        
+        priceLabel.snp.makeConstraints {
+            $0.leading.equalTo(labelContrainer.snp.trailing)
+            $0.top.bottom.equalToSuperview()
+            $0.trailing.equalToSuperview().offset(-10)
+        }
+        nameLabel.snp.makeConstraints {
+            $0.top.trailing.leading.equalToSuperview()
+        }
+        
+        timeLabel.snp.makeConstraints {
+            $0.top.equalTo(nameLabel.snp.bottom)
+            $0.leading.equalToSuperview().offset(5)
+        }
+    }
+    
+    func setupSelectedBackgroundColor() {
+        let view = UIView()
+        view.backgroundColor = Colors.specialOrange
+        self.selectedBackgroundView = view
     }
 }
 
 struct Company {
     let title: String
     let image: UIImage
+    let price: Decimal
+    let waitingTime: Int
 }

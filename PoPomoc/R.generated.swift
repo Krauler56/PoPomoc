@@ -105,16 +105,34 @@ struct R: Rswift.Validatable {
   }
   #endif
 
-  /// This `R.image` struct is generated, and contains static references to 6 images.
+  /// This `R.image` struct is generated, and contains static references to 15 images.
   struct image {
     /// Image `car-repair`.
     static let carRepair = Rswift.ImageResource(bundle: R.hostingBundle, name: "car-repair")
+    /// Image `checkmark`.
+    static let checkmark = Rswift.ImageResource(bundle: R.hostingBundle, name: "checkmark")
+    /// Image `illustrator`.
+    static let illustrator = Rswift.ImageResource(bundle: R.hostingBundle, name: "illustrator")
+    /// Image `left-arrow`.
+    static let leftArrow = Rswift.ImageResource(bundle: R.hostingBundle, name: "left-arrow")
+    /// Image `leftIOS`.
+    static let leftIOS = Rswift.ImageResource(bundle: R.hostingBundle, name: "leftIOS")
+    /// Image `left`.
+    static let left = Rswift.ImageResource(bundle: R.hostingBundle, name: "left")
+    /// Image `logo`.
+    static let logo = Rswift.ImageResource(bundle: R.hostingBundle, name: "logo")
     /// Image `marked-place`.
     static let markedPlace = Rswift.ImageResource(bundle: R.hostingBundle, name: "marked-place")
+    /// Image `photoshop`.
+    static let photoshop = Rswift.ImageResource(bundle: R.hostingBundle, name: "photoshop")
     /// Image `place`.
     static let place = Rswift.ImageResource(bundle: R.hostingBundle, name: "place")
     /// Image `professions-and-jobs`.
     static let professionsAndJobs = Rswift.ImageResource(bundle: R.hostingBundle, name: "professions-and-jobs")
+    /// Image `sap`.
+    static let sap = Rswift.ImageResource(bundle: R.hostingBundle, name: "sap")
+    /// Image `tags`.
+    static let tags = Rswift.ImageResource(bundle: R.hostingBundle, name: "tags")
     /// Image `tow-truck`.
     static let towTruck = Rswift.ImageResource(bundle: R.hostingBundle, name: "tow-truck")
     /// Image `towing-vehicle`.
@@ -128,9 +146,58 @@ struct R: Rswift.Validatable {
     #endif
 
     #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "checkmark", bundle: ..., traitCollection: ...)`
+    static func checkmark(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.checkmark, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "illustrator", bundle: ..., traitCollection: ...)`
+    static func illustrator(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.illustrator, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "left", bundle: ..., traitCollection: ...)`
+    static func left(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.left, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "left-arrow", bundle: ..., traitCollection: ...)`
+    static func leftArrow(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.leftArrow, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "leftIOS", bundle: ..., traitCollection: ...)`
+    static func leftIOS(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.leftIOS, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "logo", bundle: ..., traitCollection: ...)`
+    static func logo(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.logo, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
     /// `UIImage(named: "marked-place", bundle: ..., traitCollection: ...)`
     static func markedPlace(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
       return UIKit.UIImage(resource: R.image.markedPlace, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "photoshop", bundle: ..., traitCollection: ...)`
+    static func photoshop(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.photoshop, compatibleWith: traitCollection)
     }
     #endif
 
@@ -145,6 +212,20 @@ struct R: Rswift.Validatable {
     /// `UIImage(named: "professions-and-jobs", bundle: ..., traitCollection: ...)`
     static func professionsAndJobs(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
       return UIKit.UIImage(resource: R.image.professionsAndJobs, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "sap", bundle: ..., traitCollection: ...)`
+    static func sap(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.sap, compatibleWith: traitCollection)
+    }
+    #endif
+
+    #if os(iOS) || os(tvOS)
+    /// `UIImage(named: "tags", bundle: ..., traitCollection: ...)`
+    static func tags(compatibleWith traitCollection: UIKit.UITraitCollection? = nil) -> UIKit.UIImage? {
+      return UIKit.UIImage(resource: R.image.tags, compatibleWith: traitCollection)
     }
     #endif
 
